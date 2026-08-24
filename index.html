@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucas's Arduino Projects</title>
+
+  <!-- Google <model-viewer> CDN -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #060913;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 90% 85%, rgba(37, 99, 235, 0.10) 0%, transparent 45%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      background-attachment: fixed;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1350px;
+      margin: 0 auto;
+    }
+
+    /* Master Navigation Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      padding-bottom: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    header h1 {
+      font-size: 24px;
+      color: #38bdf8;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .home-btn {
+      display: none;
+      background-color: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .home-btn:hover {
+      background-color: #334155;
+      border-color: #38bdf8;
+    }
+
+    /* View Containers */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    /* SECTION 1: HOME VIDEO GALLERY */
+    .gallery-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .project-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .project-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.1);
+    }
+
+    .project-header-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+      padding-bottom: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .project-title {
+      font-size: 24px;
+      color: #38bdf8;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+
+    .project-title:hover {
+      color: #7dd3fc;
+    }
+
+    .click-hint {
+      color: #f59e0b;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      animation: pulse 2s infinite;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: translateX(0); }
+      50% { opacity: 0.5; transform: translateX(-3px); }
+    }
+
+    .project-hook {
+      font-size: 15px;
+      line-height: 1.5;
+      color: #e2e8f0;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .parts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style-type: disc;
+      padding-left: 20px;
+      margin-top: 4px;
+    }
+
+    .parts-list li {
+      font-size: 13.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .parts-list li strong {
+      color: #cbd5e1;
+    }
+
+    /* Updated Responsive YouTube Embed Container */
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+      background-color: #020617;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* SECTION 2: INTERACTIVE 3D & CODE INSPECTOR */
+    .interactive-screen {
+      position: relative;
+      background: rgba(2, 6, 23, 0.9);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      height: calc(100vh - 90px);
+      overflow: hidden;
+    }
+
+    @media (max-width: 968px) {
+      .interactive-screen {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow-y: auto;
+      }
+    }
+
+    .inspector-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .column-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .controls-banner {
+      background-color: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .controls-banner span {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .viewer-frame {
+      position: relative;
+      background: radial-gradient(circle at center, #111827 0%, #000000 100%);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .viewer-frame:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
+
+    /* Section-Specific 3D Model Loading Overlay */
+    .model-loader-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .model-loader-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #38bdf8;
+      letter-spacing: 0.5px;
+    }
+
+    model-viewer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+      transition: opacity 0.2s ease;
+    }
+
+    model-viewer.is-swapping {
+      opacity: 0;
+    }
+
+    .model-credit-overlay {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      pointer-events: none;
+      user-select: none;
+      z-index: 10;
+    }
+
+    .circuit-image-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #020617;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .circuit-image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+
+    .circuit-image-container img:hover {
+      transform: scale(1.02);
+    }
+
+    .svg-line-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .connector-line {
+      stroke: #38bdf8;
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+      opacity: 0.8;
+      transition: all 0.1s linear;
+    }
+
+    .hotspot {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #111827;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      z-index: 10;
+    }
+
+    .hotspot.active {
+      z-index: 90 !important;
+      background-color: #38bdf8 !important;
+      color: #0f172a !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.9) !important;
+      opacity: 1 !important;
+    }
+
+    .hotspot:hover {
+      background-color: #38bdf8;
+      color: #0f172a;
+      transform: scale(1.15);
+    }
+
+    .hud-panel {
+      display: none;
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 340px;
+      max-height: calc(100% - 28px);
+      overflow-y: auto;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+      z-index: 200;
+      pointer-events: auto;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hud-panel.active {
+      display: block;
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .hud-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+      line-height: 1.2;
+    }
+
+    .hud-close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.2s, background-color 0.2s;
+    }
+
+    .hud-close-btn:hover {
+      color: #f8fafc;
+      background-color: #334155;
+    }
+
+    .hud-image {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      background-color: #020617;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 6px;
+    }
+
+    .hud-description {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .viewer-frame:fullscreen .hud-panel {
+      width: 480px;
+      max-height: calc(100vh - 40px);
+      top: 20px;
+      right: 20px;
+      padding: 20px;
+    }
+
+    .viewer-frame:fullscreen .hud-image {
+      max-height: 360px;
+      margin-bottom: 14px;
+    }
+
+    .viewer-frame:fullscreen .hud-title {
+      font-size: 20px;
+    }
+
+    .viewer-frame:fullscreen .hud-description {
+      font-size: 15px;
+    }
+
+    .sidebar {
+      background-color: #0b0f19;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+      min-height: 0;
+      transition: height 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      flex: 0 0 auto;
+    }
+
+    .sidebar:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      padding: 20px;
+    }
+
+    .control-btn {
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .control-btn:hover {
+      background-color: #334155;
+      border-color: #38bdf8;
+    }
+
+    .code-block {
+      background-color: #020617;
+      padding: 16px;
+      color: #38bdf8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .code-block.collapsed {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Lucas's Arduino Projects</h1>
+      <button class="home-btn" id="homeBtn" onclick="closeProject()">← Home</button>
+    </header>
+
+    <!-- PAGE 1: HOME VIDEO GALLERY -->
+    <div id="galleryView" class="view-section active">
+      <div class="gallery-grid">
+
+        <!-- LED Wire Planning Card -->
+        <div class="project-card">
+          <div class="project-header-block">
+            <div class="title-row">
+              <a href="javascript:void(0)" class="project-title" onclick="openProject('ledCircuit')">
+                Piano Bot
+              </a>
+              <span class="click-hint" onclick="openProject('ledCircuit')">
+                ← Click to view wire planning & code!
+              </span>
+            </div>
+
+            <p class="project-hook">
+              <i> Plays music & flashes LEDs which represent piano keys!</i>
+            </p>
+              
+            <ul class="parts-list">
+              <li><strong>LEDs:</strong> Custom LED, resistor, and wire placement -> piano keys & organized wiring.</li>
+              <li><strong>Buzzer:</strong> Plays notes (frequencies) for certain durations.</li>
+            </ul>
+          </div>
+
+          <div class="video-wrapper">
+            <iframe 
+              src="https://www.youtube.com/embed/hiO7cJP-bSs" 
+              title="Piano Bot Demo" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Autonomous Vehicle Card -->
+        <div class="project-card">
+          <div class="project-header-block">
+            <div class="title-row">
+              <a href="javascript:void(0)" class="project-title" onclick="openProject('av1')">
+                Self Driving Bot
+              </a>
+              <span class="click-hint" onclick="openProject('av1')">
+                ← Click to view arduino build, parts & code!
+              </span>
+            </div>
+
+            <p class="project-hook">
+              <i> A clever car that detects walls & self drives through any route!</i>
+            </p>
+
+            <ul class="parts-list">
+              <li><strong>Ultrasonic Sensor:</strong> Measures distance (between itself & incoming walls) by sending out ultrasonic/high frequency sound waves.</li>
+              <li><strong>Motors & Chip:</strong> DC motors allow wheels to rotate cw/ccw, motor chip combines power wires & digital pin wires (motors can be controlled).</li>
+              <li><strong>Signaling LED's & buzzer:</strong> LED's act as left/right turn signals, buzzer plays a note (indicating when the bot has reached a wall/dead end).</li>
+            </ul>
+          </div>
+
+          <div class="video-wrapper">
+            <iframe 
+              src="https://www.youtube.com/embed/5hC1f2ruNiU" 
+              title="Self Driving Bot Demo" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Automated Gumball Machine Card -->
+        <div class="project-card">
+          <div class="project-header-block">
+            <div class="title-row">
+              <a href="javascript:void(0)" class="project-title" onclick="openProject('gumball')">
+                Electric Gumball Machine
+              </a>
+              <span class="click-hint" onclick="openProject('gumball')">
+                ← Click to view 3D interior, parts & code!
+              </span>
+            </div>
+
+            <p class="project-hook">
+              <i>Insert a coin and out comes a gumball!</i>
+            </p>
+
+            <ul class="parts-list">
+              <li><strong>Coin Detection & Slide:</strong> LDR (light) sensor detects incoming coins down the track.</li>
+              <li><strong>Motorized Paddle, Feeding Slide & Feedbowl :</strong> Rotating paddle pushes gumballs in circular motion within the cylindrical container.</li>
+              <li><strong>Gumball Verification:</strong> Secondary LDR (light) sensor detects outgoing gumball -> motor stops -> ensures only 1 gumball comes out.</li>
+            </ul>
+          </div>
+
+          <div class="video-wrapper">
+            <iframe 
+              src="https://www.youtube.com/embed/_1QQqrg6cho" 
+              title="Electric Gumball Machine Demo" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Lock Box Card -->
+        <div class="project-card">
+          <div class="project-header-block">
+            <div class="title-row">
+              <a href="javascript:void(0)" class="project-title" onclick="openProject('lockbox')">
+                Lock Box
+              </a>
+              <span class="click-hint" onclick="openProject('lockbox')">
+                ← Click to view 3D interior, parts & code!
+              </span>
+            </div>
+
+            <p class="project-hook">
+              <i>Create and enter a passkey to lock up whatever you want.</i>
+            </p>
+            
+            <ul class="parts-list">
+              <li><strong>Potentiometer, Button & LDR Sensor:</strong> Reads user input and door positioning.</li>
+              <li><strong>DC Motor:</strong> Rotates a hook-like arm into a loop to lock and unlock the door.</li>
+              <li><strong>7-Segment Display & Status LEDs:</strong> Displays real time digits and lockbox status.</li>
+            </ul>
+          </div>
+
+          <div class="video-wrapper">
+            <iframe 
+              src="https://www.youtube.com/embed/pBR3uF3mL2E" 
+              title="Lock Box Demo" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE 2: INTERACTIVE 3D & CODE INSPECTOR -->
+    <div id="inspectorView" class="view-section">
+      <div class="interactive-screen">
+
+        <!-- Left Column: CAD Viewer or Image Viewer -->
+        <div class="inspector-column">
+          <div class="column-title">
+            <span id="leftColumnHeader">Interior Design Interaction (Fullscreen Recommended)</span>
+            <button class="control-btn" onclick="toggleViewerFullscreen()">⛶ Fullscreen</button>
+          </div>
+
+          <!-- Controls Instruction Banner -->
+          <div class="controls-banner" id="controlsBanner">
+            <span>Rotate:</span> Hold Left-Click + Drag &nbsp;|&nbsp; 
+            <span>Pan:</span> Hold Right-Click + Drag &nbsp;|&nbsp; 
+            <span>Zoom:</span> Scroll Wheel
+          </div>
+
+          <div class="viewer-frame" id="viewerFrame">
+            <!-- Loading Screen Overlay bound specifically to the 3D Model Section -->
+            <div id="modelLoader" class="model-loader-overlay">
+              <div class="spinner"></div>
+              <span class="loader-text">Loading 3D Model...</span>
+            </div>
+
+            <!-- SVG Line Connection Layer -->
+            <svg class="svg-line-layer" id="svgLayer">
+              <line id="connectorLine" class="connector-line" x1="0" y1="0" x2="0" y2="0" style="display: none;" />
+            </svg>
+
+            <!-- Fixed HUD Panel Overlay -->
+            <div class="hud-panel" id="hudPanel">
+              <div class="hud-header">
+                <span class="hud-title" id="hudTitle">Component Info</span>
+                <button class="hud-close-btn" onclick="closeHUD()">✕</button>
+              </div>
+              <img id="hudImg" class="hud-image" src="" alt="Component Image" onerror="this.style.display='none';" />
+              <p class="hud-description" id="hudDesc"></p>
+            </div>
+
+            <!-- 3D Model Viewer -->
+            <model-viewer 
+              id="viewer"
+              src="" 
+              camera-controls 
+              touch-action="none"
+              tone-mapping="neutral"
+              exposure="0.75"
+              shadow-intensity="1.8"
+              shadow-softness="0.4"
+              field-of-view="30deg"
+              camera-orbit="0deg 45deg auto"
+              min-camera-orbit="-Infinity 0deg auto"
+              max-camera-orbit="Infinity 180deg auto"
+              camera-target="auto auto auto"
+              interaction-prompt="none"
+              alt="Interactive 3D Project Model">
+              
+              <!-- DESIGNED ON ONSHAPE CREDIT OVERLAY -->
+              <div class="model-credit-overlay">Designed on Onshape by Lucas</div>
+
+            </model-viewer>
+
+            <!-- Static Image Display Container -->
+            <div id="circuitImageContainer" class="circuit-image-container" style="display: none;" onclick="toggleViewerFullscreen()">
+              <img id="circuitImg" src="" alt="Wire Planning Sketch">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Code Viewer -->
+        <div class="inspector-column">
+          <div class="column-title">
+            <span>Arduino C++ Code</span>
+            <div class="btn-group">
+              <button class="control-btn" onclick="toggleCodeFullscreen()">⛶ Fullscreen</button>
+            </div>
+          </div>
+          <div class="sidebar" id="codeSidebar">
+            <pre class="code-block" id="codeBlock"></pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let scrollBeforeFullscreen = 0;
+
+    window.addEventListener('scroll', () => {
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!isFullscreen) {
+        scrollBeforeFullscreen = window.scrollY || window.pageYOffset;
+      }
+    });
+
+    document.addEventListener('fullscreenchange', handleFullscreenExit);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenExit);
+
+    function handleFullscreenExit() {
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+      if (!isFullscreen) {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollBeforeFullscreen);
+          requestAnimationFrame(() => {
+            window.scrollTo(0, scrollBeforeFullscreen);
+          });
+        });
+      }
+    }
+
+    const galleryView = document.getElementById('galleryView');
+    const inspectorView = document.getElementById('inspectorView');
+    const homeBtn = document.getElementById('homeBtn');
+    const viewer = document.getElementById('viewer');
+    const viewerFrame = document.getElementById('viewerFrame');
+    const modelLoader = document.getElementById('modelLoader');
+    const codeBlock = document.getElementById('codeBlock');
+    const codeSidebar = document.getElementById('codeSidebar');
+    const circuitImageContainer = document.getElementById('circuitImageContainer');
+    const circuitImg = document.getElementById('circuitImg');
+    const controlsBanner = document.getElementById('controlsBanner');
+    const leftColumnHeader = document.getElementById('leftColumnHeader');
+
+    const hudPanel = document.getElementById('hudPanel');
+    const hudTitle = document.getElementById('hudTitle');
+    const hudImg = document.getElementById('hudImg');
+    const hudDesc = document.getElementById('hudDesc');
+    const connectorLine = document.getElementById('connectorLine');
+
+    let activeHotspot = null;
+
+    // Database for all projects
+    const projectData = {
+      ledCircuit: {
+        isImageOnly: true,
+        imageSrc: 'led-circuit.jpg',
+        code: `// "Flamewall - Camellia 2020 " - Intro section:
+
+// digitalPins
+int leds[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+int speaker = 13;
+
+void setup() {
+  for (int i = 0; i <= 11; i++) {
+    pinMode(leds[i], OUTPUT);
+  }
+  pinMode(13, OUTPUT);
+}
+
+// main loop:
+void loop() {
+
+  // declare tempo & durations (rests + notes):
+  int bPM = 300;
+  double quarter = 0.2 * 1000;
+  double eighth = 0.1 * 1000;
+  double sixteenth = 0.05 * 1000;
+  double half = 0.4 * 1000;
+  double whole = 0.8 * 1000;
+
+  // declare freq & note names:
+  double a4[] = { 220.00, 10 };
+  double c5[] = { 261.63, 1 };
+  double d5[] = { 293.66, 3 };
+  double e5[] = { 329.63, 5 };
+  double f5[] = { 349.23, 6 };
+  double g5[] = { 392.00, 8 };
+  double a5[] = { 440.00, 10 };
+  double bF5[] = { 466.16, 11 };
+
+  double c6[] = { 523.25, 1 };
+  double d6[] = { 587.33, 3 };
+  double e6[] = { 659.25, 5 };
+  double f6[] = { 698.46, 6 };
+  double g6[] = { 783.99, 8 };
+  double a6[] = { 880.00, 10 };
+  double bF6[] = { 932.33, 11 };
+
+  double scale[8][2] = { { 493.88, 12 }, { 554.37, 2 }, { 622.25, 4 }, { 659.25, 5 }, { 739.99, 7 }, { 830.61, 9 }, { 932.33, 11 }, { 987.77, 12 } };
+
+  //scale
+
+  for (int i = 0; i<=7; i++){
+    note (scale[i], 100);
+  }
+  for (int i = 6; i>=0; i--){
+    note(scale[i],100);
+  }
+
+  delay(2000);
+
+  // song
+  rest(half);
+  note(a4, eighth);
+  note(c5, eighth);
+  note(d5, eighth);
+  note(e5, eighth);
+
+  note(f5, quarter);
+  note(e5, quarter);
+  note(f5, quarter);
+  note(g5, quarter);
+
+  note(a5, quarter);
+  note(g5, quarter);
+  note(a5, quarter);
+  note(bF5, quarter);
+
+  note(c6, quarter + eighth);
+  note(bF5, quarter + eighth);
+  note(a5, quarter);
+
+  note(g5, half);
+  note(e5, half);
+
+  note(f5, quarter + sixteenth);
+  rest(sixteenth);
+  note(f5, quarter + sixteenth);
+  rest(sixteenth);
+  note(f5, eighth);
+  note(g5, eighth);
+
+  note(a5, quarter + sixteenth);
+  rest(sixteenth);
+  note(a5, quarter + sixteenth);
+  rest(sixteenth);
+  note(a5, eighth);
+  note(bF5, eighth);
+
+  note(c6, quarter + eighth);
+  rest(eighth);
+  note(bF5, quarter + eighth);
+  rest(eighth);
+
+  note(a5, half);
+  note(a5, sixteenth);
+  rest(sixteenth);
+  note(g5, sixteenth);
+  rest(sixteenth);
+  note(f5, sixteenth);
+  rest(sixteenth);
+  note(e5, sixteenth);
+  rest(sixteenth);
+
+  note(f5, quarter);
+  note(e5, quarter);
+  note(f5, quarter);
+  note(g5, quarter);
+
+  note(a5, quarter);
+  note(g5, quarter);
+  note(a5, quarter);
+  note(bF5, quarter);
+
+  note(c6, quarter + eighth);
+  note(g6, quarter + eighth);
+  note(f6, quarter);
+
+  note(f6, half);
+  note(e6, half);
+
+  note(f6, quarter + sixteenth);
+  rest(sixteenth);
+  note(f6, quarter + sixteenth);
+  rest(sixteenth);
+  note(f6, eighth);
+  note(g6, eighth);
+
+  note(a6, quarter + sixteenth);
+  rest(sixteenth);
+  note(a6, quarter + sixteenth);
+  rest(sixteenth);
+  note(a6, eighth);
+  note(bF6, eighth);
+
+  rest(eighth);
+  note(bF5, eighth);
+  note(bF5, eighth);
+  rest(eighth);
+  note(g5, eighth);
+  note(g5, eighth);
+  rest(eighth);
+  note(a5, eighth);
+  note(a5, whole);
+
+
+  delay(2000);
+}
+
+// note&light:
+void note(double freqNote[], double dur) {
+  tone(13, (int)freqNote[0]);
+
+  int ledIndex = freqNote[1] - 1;
+
+  digitalWrite(leds[ledIndex], HIGH);
+  delay(dur);
+  noTone(13);
+  digitalWrite(leds[ledIndex], LOW);
+}
+
+// rest:
+void rest(double dur) {
+  noTone(13);
+  delay(dur);}`
+      },
+      av1: {
+        isImageOnly: false,
+        modelSrc: 'AV1.glb',
+        code: ` // Lvl 2 final project: AV
+
+// motor&buzzer wires
+int motor1Forward = 7;
+int motor1Backward = 8;
+int motor2Forward = 10;
+int motor2Backward = 9;
+int speaker = 5;
+int trigPin = 11;
+int echoPin = 12;
+int led1 = 4; // left
+int led2 = 3; // right
+
+
+void setup() {
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(6, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(3, OUTPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  long dist = getDistance();
+  Serial.println(dist);
+  if (dist > 10) {
+    forward();
+  } else {
+    stop();
+    tone(speaker, 523);
+    leftSig();
+    delay(300);
+    noTone(speaker);
+
+    // 90deg
+    leftPiv();
+    delay(900);
+    stop();
+    delay(200);
+
+    dist = getDistance();
+
+    if (dist <= 15) {
+      // -180deg
+      stop();
+      tone(speaker, 523);
+      rightSig();
+      delay(300);
+      noTone(speaker);
+      rightPiv();
+      delay(1800);
+      stop();
+      delay(200);
+    }
+  }
+  delay(50);
+}
+
+
+void forward() {
+  digitalWrite(motor1Forward, HIGH);
+  digitalWrite(motor1Backward, LOW);
+  digitalWrite(motor2Forward, HIGH);
+  digitalWrite(motor2Backward, LOW);
+}
+
+void backward() {
+  digitalWrite(motor1Forward, LOW);
+  digitalWrite(motor1Backward, HIGH);
+  digitalWrite(motor2Forward, LOW);
+  digitalWrite(motor2Backward, HIGH);
+}
+
+void rightPiv() {
+  digitalWrite(motor1Forward, LOW);
+  digitalWrite(motor1Backward, HIGH);
+  digitalWrite(motor2Forward, HIGH);
+  digitalWrite(motor2Backward, LOW);
+}
+
+void leftPiv() {
+  digitalWrite(motor1Forward, HIGH);
+  digitalWrite(motor1Backward, LOW);
+  digitalWrite(motor2Forward, LOW);
+  digitalWrite(motor2Backward, HIGH);
+}
+
+void stop() {
+  digitalWrite(motor1Forward, LOW);
+  digitalWrite(motor1Backward, LOW);
+  digitalWrite(motor2Forward, LOW);
+  digitalWrite(motor2Backward, LOW);
+}
+
+void leftSig() {
+  for (int i = 0; i <= 3; i++) {
+    digitalWrite(led1, HIGH);
+    delay(60);
+    digitalWrite(led1, LOW);
+    delay(60);
+  }
+}
+
+void rightSig() {
+  for (int i = 0; i <= 3; i++) {
+    digitalWrite(led2, HIGH);
+    delay(60);
+    digitalWrite(led2, LOW);
+    delay(60);
+  }
+}
+
+long getDistance() {
+  digitalWrite(trigPin, LOW);
+  delay(2);
+  digitalWrite(trigPin, HIGH);
+  delay(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  long dist = duration * 0.034 / 2;
+
+  return dist;}`,
+        hotspots: [
+          { slot: 'hotspot-2', pos: '-0.009630170883610845m -0.006748311444563282m -0.11055114224319453m', normal: '1m 2.220446049250313e-16m -2.220446049250313e-16m', title: 'Ultrasonic Sensor', img: 'ultrasonic.jpg', desc: 'Measures distances in front of the vehicle to detect walls.', num: '1' },
+          { slot: 'hotspot-3', pos: '-0.028533743673366307m -0.01602024689782408m -0.08285716150806652m', normal: '2.2204460492503072e-16m 1m -7.771561172376098e-16m', title: 'Motor Driver Chip', img: 'motordriver.jpg', desc: 'Controls direction and speed for the DC motors by connecting to the UNO boards digital pins (*other projects involving motors also use the same motor chip).', num: '2' },
+          { slot: 'hotspot-4', pos: '-0.027632875248039174m -0.010553227737545967m -0.13842776563462497m', normal: '-4.930380657631324e-32m 1m 2.220446049250313e-16m', title: 'Buzzer', img: 'buzzer.jpg', desc: 'Buzzes a note (warning) when close to a wall.', num: '3' },
+          { slot: 'hotspot-5', pos: '0.021295288137455293m -0.02281743474304676m -0.15406444911169717m', normal: '0m 1m 0m', title: 'Led (Turn signal)', img: 'turnsignal.jpg', desc: 'Flashes indicate turn direction.', num: '4' },
+          { slot: 'hotspot-7', pos: '-0.10139977734090608m -0.025728433509357246m -0.10237435919469029m', normal: '-1.0477058897466563e-31m 1m -2.220446049250313e-16m', title: 'Arduino Uno', img: 'autodriver-arduino.jpg', desc: 'Main microcontroller (the brain) running the system.', num: '5' },
+          { slot: 'hotspot-11', pos: '-0.013707999717116668m -0.0432530411325867m -0.1371470363810658m', normal: '2.220446049250313e-16m -2.220446049250313e-16m 1m', title: 'Motor', img: 'av-motor.jpg', desc: 'Each motor spins a wheel.', num: '6' }
+        ]
+      },
+      gumball: {
+        isImageOnly: false,
+        modelSrc: 'gumballModel.glb',
+        code: `//gumball machine code  
+
+int ldr1 = A5;
+int ldr2 = A1;
+int led1 = 2;
+int led2 = 4;
+int led3 = 13;
+int m1f = 8;
+bool coin = false;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+  pinMode(m1f, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(led3, HIGH);
+  int sens1 = analogRead(ldr1);
+  int sens2 = analogRead(ldr2);
+  digitalWrite(led1, HIGH);
+  digitalWrite(led2, HIGH);
+  Serial.print("one: ");
+  Serial.println(sens1);
+  Serial.print("two: ");
+  Serial.println(sens2);
+  digitalWrite(m1f, LOW);
+
+  // entered coin and coin detected
+  if (sens1 < 100) {
+    coin = true;
+  }
+
+  // coin detected -> m1f
+  if (coin) {
+    digitalWrite(m1f, HIGH);
+    digitalWrite(led3, LOW);
+  }
+
+  if (coin && sens2 <60 ) {
+    digitalWrite(m1f, LOW);
+    digitalWrite(led3, HIGH);
+    coin = false;
+  }
+
+  Serial.print("coin  ");
+  Serial.println(coin);
+}`,
+        hotspots: [
+          { slot: 'hotspot-2', pos: '-0.0963586080624635m 0.01972847618162632m 0.06563746776932267m', normal: '0m 1m 0m', title: 'Arduino Uno', img: 'gumball-arduino.jpg', desc: 'Main microcontroller running the system' , num: '1' },
+          { slot: 'hotspot-3', pos: '0.012332825003287307m 0.05956794796714901m 0.09030616795644164m', normal: '0m 0m 1m', title: 'Coin Slide', img: 'gumball-coinslide.jpg', desc: 'Guarded track for receiving coins into the machine.', num: '2' },
+          { slot: 'hotspot-5', pos: '-0.001919843485038833m 0.05869081473682258m 0.0160254358598253m', normal: '0.7071m 0m 0.7071m', title: 'Breadboard & Coin Detection LDR', img: 'gumball-coin-ldr.jpg', desc: 'Primary breadboard with the LDR (light) sensor for detecting coin drops.', num: '3' },
+          { slot: 'hotspot-6', pos: '0.020003047013032738m 0.046184360607286236m 0.020478032063692808m', normal: '0m 0m 1m', title: 'Coin Detection LED', img: 'gumball-coin-led.jpg', desc: 'Light source aimed at the coin detection LDR sensor. (rolling coin temporarily blocks this light source)', num: '4' },
+          { slot: 'hotspot-10', pos: '0.02041923594282663m -0.01327152387239039m -0.09741377127202355m', normal: '0m 1m 0m', title: 'Coin Basket', img: 'gumball-basket.jpg', desc: 'Basket that collects deposited coins.', num: '5' },
+          { slot: 'hotspot-11', pos: '0.10084800505958225m 0.18172847293317318m -0.09271992323188048m', normal: '0m 1m 0m', title: 'Motor Mount, Shaft & Paddles', img: 'gumball-motor.jpg', desc: 'Motorized rotating paddle that pushes gumballs in circular motion within the feedbowl.', num: '6' },
+          { slot: 'hotspot-12', pos: '0.12484799366340547m 0.09935062790374456m -0.07734709028024123m', normal: '0.9868m 0m -0.1617m', title: 'Gumball Feedbowl', img: 'gumball-feedbowl.jpg', desc: "Gumballs move in this cylindrical 'container' & fall into the shute once they reach the feedbowl's hole.", num: '7' },
+          { slot: 'hotspot-17', pos: '0.10699648604380507m 0.11450712187132825m -0.028090442065149546m', normal: '0m 0m 1m', title: 'Gumball Feeding Slide', img: 'gumball-feedslide.jpg', desc: 'Allows gumballs to enter one by one into the feedbowl', num: '8' },
+          { slot: 'hotspot-13', pos: '0.08779998303939496m 0.04073776810522657m -0.028200499713420868m', normal: '0m 0m 1m', title: 'Gumball Shute & Exit Slide', img: 'gumball-exit.jpg', desc: 'Chute allows for gumball detection. Gumballs roll down the slide to the user.', num: '9' },
+          { slot: 'hotspot-14', pos: '0.1104323836043477m 0.06249525638085605m -0.027226019896543937m', normal: '-1m 0m 0m', title: 'Secondary Breadboard & Gumball LDR', img: 'gumball-dispense-ldr.jpg', desc: 'Secondary breadboard with second LDR (light) sensor for detecting a gumball drop (Once detected, motor stops) -> ensures only 1 gumball exits.', num: '10' },
+          { slot: 'hotspot-15', pos: '0.06574053346104058m 0.05968608775827666m -0.04890793582877773m', normal: '0.6473m 0m 0.7621m', title: 'Gumball Detection LED', img: 'gumball-dispense-led.jpg', desc: 'Light source aimed at the gumball detection LDR sensor. (falling gumball temporarily blocks this light source )', num: '11' }
+        ]
+      },
+      lockbox: {
+        isImageOnly: false,
+        modelSrc: 'LockBoxFinalReal.glb',
+        code: `// Lock Box Code
+ 
+int m1f = 3;
+int m1b = 2;
+
+int butState;
+int oldButState = LOW;
+
+int sens = A1;
+int dial = A0;
+int button = 13;
+
+const int LED1 = 6;
+const int LED2 = 7;
+const int LED3 = 8;
+const int LED4 = 9;
+const int LED5 = 10;
+const int LED6 = 11;
+const int LED7 = 12;
+
+int green = 5;
+int red = 4;
+int blue = A2;
+
+String pass = "999";
+int counter = 0;
+String guess = "";
+bool passSet = false;
+
+void setup() {
+  pinMode(dial, INPUT);
+  pinMode(button, INPUT);
+  pinMode(sens, INPUT);
+
+  Serial.begin(9600);
+
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(LED5, OUTPUT);
+  pinMode(LED6, OUTPUT);
+  pinMode(LED7, OUTPUT);
+
+  pinMode(green, OUTPUT);
+  pinMode(red, OUTPUT);
+  pinMode(blue, OUTPUT);
+  pinMode(m1f, OUTPUT);
+  pinMode(m1b, OUTPUT);
+}
+
+void greenRedFlash() {
+  for (int i = 0; i <= 3; i++) {
+    digitalWrite(green, HIGH);
+    digitalWrite(red, HIGH);
+    delay(100);
+    digitalWrite(green, LOW);
+    digitalWrite(red, LOW);
+    delay(100);
+  }
+}
+
+void loop() {
+  int dialValue = analogRead(dial);
+  int number = map(dialValue, 0, 1023, 0, 11);
+  numbers(number);
+
+  if (number >= 10 && !passSet) {
+    digitalWrite(green, HIGH);
+    digitalWrite(red, HIGH);
+  } else if (!(guess.equals(pass))) {
+    digitalWrite(green, LOW);
+    digitalWrite(red, HIGH);
+  }
+
+  butState = digitalRead(button);
+  if (number >= 10 && !passSet) {
+    if (butState != oldButState) {
+      if (butState == HIGH) {
+        greenRedFlash();
+        pass = "";
+
+        while (true) {
+          int dialValue = analogRead(dial);
+          int number = map(dialValue, 0, 1023, 0, 11);
+          numbers(number);
+
+          butState = digitalRead(button);
+          if (butState != oldButState) {
+            if (butState == 1 && number <= 9) {
+              pass += String(number);
+              greenRedFlash();
+              counter++;
+              if (counter == 3) {
+                counter = 0;
+                passSet = true;
+                break;
+              }
+            }
+          }
+          oldButState = butState;
+        }
+      }
+    }
+  }
+
+  if (!(guess.equals(pass))) {
+    digitalWrite(red, HIGH);
+  }
+
+  butState = digitalRead(button);
+  if (butState != oldButState) {
+    if (butState == 1 && number <= 9) {
+      counter++;
+
+      if (counter == 1 || counter == 2 || counter == 3) {
+        guess += String(number);
+        numbers(10);
+        delay(100);
+      }
+    }
+  }
+  oldButState = butState;
+
+  if (counter == 3) {
+    if (guess.equals(pass)) {
+      digitalWrite(green, HIGH);
+      digitalWrite(blue, HIGH);
+      digitalWrite(red, LOW);
+
+      digitalWrite(m1f, HIGH);
+      digitalWrite(m1b, LOW);
+      delay(700);
+      digitalWrite(m1f, LOW);
+      digitalWrite(m1b, LOW);
+
+      while (true) {
+        butState = digitalRead(button);
+        int sensVal = analogRead(sens);
+
+        if (butState == HIGH && oldButState == LOW) {
+          if (sensVal < 70) {
+            digitalWrite(m1b, HIGH);
+            digitalWrite(m1f, LOW);
+            delay(690);
+            digitalWrite(m1b, LOW);
+
+            guess = "";
+            counter = 0;
+            digitalWrite(green, LOW);
+            digitalWrite(blue, LOW);
+
+            oldButState = butState;
+            break;
+          }
+        }
+        oldButState = butState;
+      }
+    } else {
+      for (int i = 0; i <= 5; i++) {
+        digitalWrite(red, HIGH);
+        delay(100);
+        digitalWrite(red, LOW);
+        delay(100);
+      }
+      guess = "";
+      counter = 0;
+    }
+  }
+}
+
+void numbers(int num) {
+  switch (num) {
+    case 0:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, HIGH); digitalWrite(LED6, HIGH); digitalWrite(LED7, LOW);
+      break;
+    case 1:
+      digitalWrite(LED1, LOW); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, LOW); digitalWrite(LED5, LOW); digitalWrite(LED6, LOW); digitalWrite(LED7, LOW);
+      break;
+    case 2:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, LOW);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, HIGH); digitalWrite(LED6, LOW); digitalWrite(LED7, HIGH);
+      break;
+    case 3:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, LOW); digitalWrite(LED6, LOW); digitalWrite(LED7, HIGH);
+      break;
+    case 4:
+      digitalWrite(LED1, LOW); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, LOW); digitalWrite(LED5, LOW); digitalWrite(LED6, HIGH); digitalWrite(LED7, HIGH);
+      break;
+    case 5:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, LOW); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, LOW); digitalWrite(LED6, HIGH); digitalWrite(LED7, HIGH);
+      break;
+    case 6:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, LOW); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, HIGH); digitalWrite(LED6, HIGH); digitalWrite(LED7, HIGH);
+      break;
+    case 7:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, LOW); digitalWrite(LED5, LOW); digitalWrite(LED6, LOW); digitalWrite(LED7, LOW);
+      break;
+    case 8:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, HIGH); digitalWrite(LED6, HIGH); digitalWrite(LED7, HIGH);
+      break;
+    case 9:
+      digitalWrite(LED1, HIGH); digitalWrite(LED2, HIGH); digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH); digitalWrite(LED5, LOW); digitalWrite(LED6, HIGH); digitalWrite(LED7, HIGH);
+      break;
+    case 10:
+      digitalWrite(LED1, LOW); digitalWrite(LED2, LOW); digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW); digitalWrite(LED5, LOW); digitalWrite(LED6, LOW); digitalWrite(LED7, LOW);
+      break;
+  }
+}`,
+        hotspots: [
+          { slot: 'hotspot-3', pos: '0.024604003740761257m -0.062237715261637044m 0.055854444392025415m', normal: '0m 0m 1m', title: 'Potentiometer (Dial)', img: 'potentiometer.jpg', desc: 'Input dial allowing the user to cycle between digits.', num: '1' },
+          { slot: 'hotspot-2', pos: '0.06894695466447132m -0.061674959786254424m 0.060619442723691463m', normal: '0m 0m 1m', title: 'Confirm Button', img: 'button.jpg', desc: 'Input button used to select digits.', num: '2' },
+          { slot: 'hotspot-1', pos: '0.0480956552100876m -0.06707334250677377m -0.016007382308961537m', normal: '0m 1m 0m', title: 'Arduino Uno Board', img: 'arduino.jpg', desc: 'Main microcontroller running the system', num: '3' },
+          { slot: 'hotspot-4', pos: '-0.020640509071748275m -0.01535956853606231m 0.10823599901050329m', normal: '0m 0m 1m', title: 'Display & Status LEDs', img: 'display.jpg', desc: '7-segment display shows active numbers. Green & Red LEDs indicate lock status.', num: '4' },
+          { slot: 'hotspot-5', pos: '-0.0505033740487832m -0.0861959852199374m 0.09393599536269903m', normal: '0m 0m 1m', title: 'LDR Light Sensor', img: 'ldr.jpg', desc: 'Detects light level. When the door fully closes, it no longer detects the Blue LED.', num: '5' },
+          { slot: 'hotspot-6', pos: '-0.08961352333426476m -0.09271053384689615m 0.09066465189733897m', normal: '1m 0m 0m', title: 'Blue LED', img: 'blue-led.jpg', desc: 'Light source detected by the LDR sensor.', num: '6' },
+          { slot: 'hotspot-7', pos: '-0.06666370849858211m -0.04785344347558007m 0.12939686459913266m', normal: '0.9537m 0m 0.3006m', title: 'Door Loop & Side Wall', img: 'door-loop.jpg', desc: 'Loop catches the latch on the motor.', num: '7' },
+          { slot: 'hotspot-8', pos: '-0.05374553706496951m -0.058878068853419084m 0.07942371467538945m', normal: '-1m 0m 0m', title: 'Motor Mount & Locking Arm', img: 'motor.jpg', desc: 'Motorized latch rotates to hook in and out of the door loop.', num: '8' },
+          { slot: 'hotspot-10', pos: '-0.04553075171806299m -0.030533362246945125m -0.038566642588308414m', normal: '0.7071m -0.7071m 0m', title: 'Secondary Breadboard', img: 'breadboard.jpg', desc: 'Raised breadboard platform organizing internal wiring.', num: '9' }
+        ]
+      }
+    };
+
+    function killMedia() {
+      // YouTube iframes handle their own audio/video states
+    }
+
+    function openProject(projectId) {
+      const data = projectData[projectId];
+      if (!data) return;
+
+      killMedia();
+      closeHUD();
+
+      // Image or 3D Model View toggle
+      if (data.isImageOnly) {
+        viewer.style.display = 'none';
+        modelLoader.classList.remove('active');
+        circuitImageContainer.style.display = 'flex';
+        circuitImg.src = data.imageSrc;
+        controlsBanner.style.display = 'none';
+        leftColumnHeader.textContent = 'Wire Planning Diagram (Click Image to Fullscreen)';
+      } else {
+        circuitImageContainer.style.display = 'none';
+        viewer.style.display = 'block';
+        controlsBanner.style.display = 'block';
+        leftColumnHeader.textContent = 'Interior Design Interaction (Fullscreen Recommended)';
+
+        // Show section loading screen and update 3D asset
+        if (viewer.getAttribute('src') !== data.modelSrc) {
+          modelLoader.classList.add('active');
+          viewer.classList.add('is-swapping');
+          viewer.setAttribute('src', data.modelSrc);
+
+          viewer.addEventListener('load', () => {
+            modelLoader.classList.remove('active');
+            viewer.classList.remove('is-swapping');
+            if (typeof viewer.dismissPoster === 'function') {
+              viewer.dismissPoster();
+            }
+          }, { once: true });
+        }
+      }
+
+      codeBlock.textContent = data.code;
+
+      // Clear old hotspots
+      const existingHotspots = viewer.querySelectorAll('.hotspot');
+      existingHotspots.forEach(h => h.remove());
+
+      // Inject project hotspots
+      if (!data.isImageOnly && data.hotspots) {
+        data.hotspots.forEach(item => {
+          const btn = document.createElement('button');
+          btn.className = 'hotspot';
+          btn.setAttribute('slot', item.slot);
+          btn.setAttribute('data-position', item.pos);
+          btn.setAttribute('data-normal', item.normal);
+          btn.setAttribute('data-title', item.title);
+          btn.setAttribute('data-img', item.img);
+          btn.setAttribute('data-desc', item.desc);
+          btn.textContent = item.num;
+
+          btn.addEventListener('click', () => openHUD(btn));
+          viewer.appendChild(btn);
+        });
+      }
+
+      galleryView.classList.remove('active');
+      inspectorView.classList.add('active');
+      homeBtn.style.display = 'inline-block';
+      window.scrollTo(0, 0);
+    }
+
+    function closeProject() {
+      // Safely exit fullscreen if currently active
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+
+      killMedia();
+      closeHUD();
+
+      // Reset loading overlay state
+      modelLoader.classList.remove('active');
+
+      inspectorView.classList.remove('active');
+      galleryView.classList.add('active');
+      homeBtn.style.display = 'none';
+      window.scrollTo(0, 0);
+    }
+
+    function toggleViewerFullscreen() {
+      if (!document.fullscreenElement) {
+        viewerFrame.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function toggleCodeFullscreen() {
+      if (!document.fullscreenElement) {
+        codeSidebar.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function updateConnectorLine() {
+      if (!activeHotspot || !hudPanel.classList.contains('active')) {
+        connectorLine.style.display = 'none';
+        return;
+      }
+
+      const frameRect = viewerFrame.getBoundingClientRect();
+      const hotspotRect = activeHotspot.getBoundingClientRect();
+      const hudRect = hudPanel.getBoundingClientRect();
+
+      const x1 = (hotspotRect.left + hotspotRect.width / 2) - frameRect.left;
+      const y1 = (hotspotRect.top + hotspotRect.height / 2) - frameRect.top;
+
+      const x2 = hudRect.left - frameRect.left;
+      const y2 = (hudRect.top + hudRect.height / 2) - frameRect.top;
+
+      connectorLine.setAttribute('x1', x1);
+      connectorLine.setAttribute('y1', y1);
+      connectorLine.setAttribute('x2', x2);
+      connectorLine.setAttribute('y2', y2);
+      connectorLine.style.display = 'block';
+    }
+
+    function openHUD(hotspot) {
+      activeHotspot = hotspot;
+
+      viewer.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+      hotspot.classList.add('active');
+
+      hudTitle.textContent = hotspot.getAttribute('data-title');
+      hudDesc.textContent = hotspot.getAttribute('data-desc');
+
+      const imgSrc = hotspot.getAttribute('data-img');
+      if (imgSrc) {
+        hudImg.src = imgSrc;
+        hudImg.style.display = 'block';
+      } else {
+        hudImg.style.display = 'none';
+      }
+
+      hudPanel.classList.add('active');
+      updateConnectorLine();
+    }
+
+    function closeHUD() {
+      activeHotspot = null;
+      hudPanel.classList.remove('active');
+      connectorLine.style.display = 'none';
+      viewer.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+    }
+
+    viewer.addEventListener('camera-change', updateConnectorLine);
+  </script>
+</body>
+</html>
